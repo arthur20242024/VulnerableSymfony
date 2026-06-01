@@ -43,11 +43,11 @@ RUN service mysql start &&  \
 RUN chown www-data:www-data /app/var -R
 RUN mkdir /app/public/uploads/avatars -p
 RUN chown www-data:www-data /app/public/uploads -R
-RUN chmod +x /app/bin/script
 RUN chown www-data:www-data /app/bin/console
 
 # Cron Job
-RUN echo "*  *    * * *   root    cd /app && bash bin/script" > /etc/cron.d/app
+RUN useradd -r -s /usr/sbin/nologin appuser
+RUN echo "*  *    * * *   appuser    cd /app && /usr/local/bin/php /app/bin/console messenger:stats -q" > /etc/cron.d/app
 RUN chmod 0644 /etc/cron.d/app
 RUN crontab /etc/cron.d/app
 
