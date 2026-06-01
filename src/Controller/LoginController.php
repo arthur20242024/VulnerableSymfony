@@ -75,7 +75,7 @@ class LoginController extends AbstractController
             // Check if email is not already in use
             $user = $userRepository->findOneBy(['email' => $email]);
             if ($user) {
-                $this->addFlash('error', 'Email is already in use');
+                $this->addFlash('error', 'If this email is not already registered, you will receive a confirmation email.');
                 return $this->redirectToRoute('app_register');
             }
 
