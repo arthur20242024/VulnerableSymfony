@@ -31,7 +31,7 @@ class PasswordResetController extends AbstractController
                 return $this->redirectToRoute('app_reset');
             }
 
-            $user = $userRepository->findBy(['email' => $email[0]]);
+	    $user = $userRepository->findOneBy(['email' => $email]);
             if (!$user) {
                 $this->addFlash('error', 'Email not found');
                 return $this->redirectToRoute('app_reset');
@@ -68,6 +68,10 @@ class PasswordResetController extends AbstractController
             }
 
             $password = $request->get('password');
+	    if (strlen($password) < 8) {
+    		$this->addFlash('error', 'Password must be at least 8 characters');
+    		return $this->redirectToRoute('app_reset');
+	    }
             $confirmPassword = $request->get('confirmPassword');
 
             if (empty($password) || $password !== $confirmPassword) {
