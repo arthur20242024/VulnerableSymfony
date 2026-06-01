@@ -29,7 +29,7 @@ class LoginController extends AbstractController
                     $this->addFlash('error', 'Invalid credentials');
                 } else {
                     // Create the user session
-                    $userForSecurity = $repository->findOneBy(['email' => $user['email'] ?? ""]);
+                    $userForSecurity = $repository->findOneBy(['email' => $user->getEmail()]);
                     if (!$userForSecurity) {
                         $this->addFlash('error', 'Invalid credentials');
                         return $this->render('login/index.html.twig', []);
