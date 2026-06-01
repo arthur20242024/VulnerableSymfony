@@ -274,8 +274,8 @@ class UserController extends AbstractController
         #[CurrentUser] ?User $user
     ): Response
     {
-        $user->setFirstName($request->request->get('firstName'));
-		$user->setLastName($request->request->get('lastName'));
+        $user->setFirstName($request->request->get('firstName') ?? '');
+	$user->setLastName($request->request->get('lastName') ?? '');
 
         $entityManager->flush();
 
