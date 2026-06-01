@@ -189,8 +189,9 @@ class UserController extends AbstractController
             return $this->redirectToRoute('app_user');
         }
 
-        $avatarFile = $this->getParameter('avatars_directory') . '/' . $avatar;
-        $command = 'convert ' . $avatarFile . ' -resize 200x200 ' . $avatarFile;
+	$avatarFile = $this->getParameter('avatars_directory') . '/' . basename($avatar);
+	$command = 'convert ' . escapeshellarg($avatarFile) . ' -resize 200x200 ' . escapeshellarg($avatarFile);
+	shell_exec($command);
 
         shell_exec($command);
 
@@ -210,8 +211,8 @@ class UserController extends AbstractController
         #[CurrentUser] ?User $user
     ): Response
     {
-        $about = $request->get('about');
-        $user->setAboutMe($about);
+        $about = htmlspecialchars($request->get('about'), ENT_QUOTES, 'UTF-8');
+	$user->setAboutMe($about);
         $entityManager->flush();
 
         $this->addFlash('success', 'About changed successfully');
