@@ -121,7 +121,19 @@ class UserController extends AbstractController
         }
 
         $url = $request->get('url');
+        // Validation anti-SSRF
+	$parsed = parse_url($url);
+	$host = $parsed['host'] ?? '';
+	$scheme = $parsed['scheme'] ?? '';
 
+	if (!in_array($scheme, ['http', 'https'])) {
+    	   $this->addFlash('error', 'URL scheme not allowed');
+    	   return $this->redirectToRoute('app_user');
+        }
+	if (preg_match('/^(127\.|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.|localhost)/i', $host)) {
+    	   $this->addFlash('error', 'Internal URLs are not allowed');
+           return $this->redirectToRoute('app_user');
+        }
         if (empty($url)) {
             $this->addFlash('error', 'URL cannot be empty');
             return $this->redirectToRoute('app_user');
