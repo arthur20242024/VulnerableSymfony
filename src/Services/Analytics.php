@@ -16,23 +16,29 @@ class Analytics
     /**
      * #VULNERABILITY: Intended vulnerable request (SSRF + RCE in the referer header)
      */
-    public function track(): void {
-        if (!$this->trackingEnabled) {
+    public function track(): void
+    {
+    	if (!$this->trackingEnabled) {
+            return;
+    	}
+
+    	$referer = $_SERVER['HTTP_REFERER'] ?? null;
+    	if (!$referer || !$this->validate($referer)) {
+            return;
+    	}
+
+    	// Vérification que l'URL est bien HTTP/HTTPS et pas interne
+    	$parsed = parse_url($referer);
+    	if (!isset($parsed['scheme']) || !in_array($parsed['scheme'], ['http', 'https'])) {
+            return;
+        }
+        $host = $parsed['host'] ?? '';
+        // Bloquer les adresses internes
+        if (preg_match('/^(127\.|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.|localhost)/i', $host)) {
             return;
         }
 
-        // Get the referer header
-        $referer = $_SERVER['HTTP_REFERER'] ?? null;
-        if (!$referer || !$this->validate($referer)) {
-            return;
-        }
-
-        // Call the url with curl to get only the http status code
-        $command = 'curl -k -s -o /dev/null -w "%{http_code}" ' . $referer;
-        $statusCode = shell_exec($command);
-
-        // Log the response status
-        $this->logger->info('Referer URL response status: ' . $statusCode);
+        $this->logger->info('Referer tracked: ' . $referer);
     }
 
     public function validate(string $url): bool
