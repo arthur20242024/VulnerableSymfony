@@ -28,6 +28,9 @@ class AdminController extends AbstractController
     #[Route('/user/role/{user}', name: 'app_admin_role', methods: ['POST'])]
     public function changeRole(Request $request, UserRepository $userRepository, User $user): Response
     {
+        if (!$this->getUser() || !in_array('ROLE_ADMIN', $this->getUser()->getRoles())) {
+    	    throw $this->createAccessDeniedException('Access denied');
+	}
         $user = $userRepository->find($user);
         $user->setAdmin($request->get('role') === '1');
         $userRepository->save($user, true);
