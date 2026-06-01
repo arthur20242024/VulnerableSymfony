@@ -88,10 +88,18 @@ class BlogController extends AbstractController
     #[Route('/legal/content', name: 'app_legal_content', methods: ['GET'])]
     public function legalContent(Request $request): Response
     {
-        $contentPath = __DIR__ . '/../../templates/legal/' . $request->get('p');
-        if (is_dir($contentPath) || !file_exists($contentPath))
-            throw $this->createNotFoundException();
+        $allowedFiles = ['terms.html', 'privacy.html', 'cookies.html'];
+	$page = $request->get('p');
 
-        return new Response(file_get_contents($contentPath));
+	if (!in_array($page, $allowedFiles)) {
+    	    throw $this->createNotFoundException();
+	}
+
+	$contentPath = __DIR__ . '/../../templates/legal/' . $page;
+	if (!file_exists($contentPath)) {
+    	    throw $this->createNotFoundException();
+	}
+
+	return new Response(file_get_contents($contentPath));
     }
 }
