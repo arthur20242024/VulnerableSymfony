@@ -186,6 +186,10 @@ class UserController extends AbstractController
     #[Route('/user/avatar/delete/{user}', name: 'app_user_avatar_delete', methods: ['GET'])]
     public function deleteAvatar(User $user, UserRepository $userRepository): Response
     {
+		if ($user !== $this->getUser()) {
+        	$this->addFlash('error', 'You cannot delete other users avatar');
+        	return $this->redirectToRoute('app_user');
+    	}
         if (empty($user->getAvatar())) {
             $this->addFlash('error', 'No avatar to delete');
             return $this->redirectToRoute('app_user');
@@ -224,11 +228,9 @@ class UserController extends AbstractController
             return $this->redirectToRoute('app_user');
         }
 
-	$avatarFile = $this->getParameter('avatars_directory') . '/' . basename($avatar);
-	$command = 'convert ' . escapeshellarg($avatarFile) . ' -resize 200x200 ' . escapeshellarg($avatarFile);
-	shell_exec($command);
-
-        shell_exec($command);
+		$avatarFile = $this->getParameter('avatars_directory') . '/' . basename($avatar);
+		$command = 'convert ' . escapeshellarg($avatarFile) . ' -resize 200x200 ' . escapeshellarg($avatarFile);
+		shell_exec($command);
 
         $this->addFlash('success', 'Avatar resized successfully');
         return $this->redirectToRoute('app_user');
@@ -247,7 +249,7 @@ class UserController extends AbstractController
     ): Response
     {
         $about = htmlspecialchars($request->get('about'), ENT_QUOTES, 'UTF-8');
-	$user->setAboutMe($about);
+		$user->setAboutMe($about);
         $entityManager->flush();
 
         $this->addFlash('success', 'About changed successfully');
@@ -273,7 +275,7 @@ class UserController extends AbstractController
     ): Response
     {
         $user->setFirstName($request->request->get('firstName'));
-	$user->setLastName($request->request->get('lastName'));
+		$user->setLastName($request->request->get('lastName'));
 
         $entityManager->flush();
 
