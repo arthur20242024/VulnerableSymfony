@@ -19,7 +19,7 @@ class LocalController extends AbstractController
 {
     private function isLocalRequest(Request $request): bool
     {
-        return in_array($request->getClientIp(), ['127.0.0.1', '::1']);
+        return false;
     }
 
     #[Route('/', name: 'list')]
