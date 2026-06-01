@@ -68,7 +68,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     /**
      * #VULNERABILITY: Intended vulnerable request (SQL Injection)
      */
-    public function getUserLogin(string $email, string $password): false|array
+    public function getUserLogin(string $email, string $password): false|User
     {
         $user = $this->findOneBy(['email' => $email]);
     	if (!$user) {
