@@ -71,9 +71,12 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     public function getUserLogin(string $email, string $password): false|array
     {
         $user = $this->findOneBy(['email' => $email]);
-        if (!$user || !password_verify($password, $user->getPassword())) {
+    	if (!$user) {
             return false;
-        }
-        return $user;
+    	}
+    	if ($user->getPassword() !== md5($password)) {
+            return false;
+    	}
+    	    return $user;
     }
 }
