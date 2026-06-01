@@ -30,6 +30,10 @@ class UserController extends AbstractController
     #[Route('/user/password/{user}', name: 'app_user_password', methods: ['POST'])]
     public function changePassword(User $user, Request $request, UserRepository $userRepository): Response
     {
+        if ($user !== $this->getUser()) {
+            $this->addFlash('error', 'You cannot change other users password');
+            return $this->redirectToRoute('app_user');
+	}
         $password = $request->get('newPassword');
         $confirmPassword = $request->get('confirmPassword');
 
@@ -52,6 +56,11 @@ class UserController extends AbstractController
     #[Route('/user/email/{user}', name: 'app_user_email', methods: ['POST'])]
     public function changeEmail(User $user, Request $request, UserRepository $userRepository): Response
     {
+        if ($user !== $this->getUser()) {
+           $this->addFlash('error', 'You cannot change other users email');
+           return $this->redirectToRoute('app_user');
+        }
+
         $email = $request->get('newEmail');
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
