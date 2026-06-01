@@ -104,8 +104,22 @@ class UserController extends AbstractController
             mkdir($this->getParameter('avatars_directory'));
         }
 
-        $avatarName = md5(uniqid()) . '.' . $avatar->getClientOriginalExtension();
-        $avatar->move($this->getParameter('avatars_directory'), $avatarName);
+        $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+	$allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+	if (!in_array($avatar->getMimeType(), $allowedMimes)) {
+    	    $this->addFlash('error', 'File type not allowed. Only images are accepted.');
+    	    return $this->redirectToRoute('app_user');
+	}
+
+	$extension = strtolower($avatar->getClientOriginalExtension());
+	if (!in_array($extension, $allowedExtensions)) {
+            $this->addFlash('error', 'File extension not allowed.');
+    	    return $this->redirectToRoute('app_user');
+	}
+
+	$avatarName = md5(uniqid()) . '.' . $extension;
+	$avatar->move($this->getParameter('avatars_directory'), $avatarName);
 
         $user->setAvatar($avatarName);
         $userRepository->save($user, true);
